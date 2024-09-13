@@ -1,0 +1,7 @@
+## Mini Project 3: Machine Learning for Prediction by Regression
+
+### Questions
+- What type/s of regression have you applied?
+- Which were the challenges?
+- How accurate is your solution?
+- 
