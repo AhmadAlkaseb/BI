@@ -10,7 +10,7 @@ Multiple
 Polynominal  
   
 - Which were the challenges?  
-Multiple & Polynominal regression
+Multiple & Polynominal regression  
 Use the correct data for the regressions
   
 - How accurate is your solution?  
