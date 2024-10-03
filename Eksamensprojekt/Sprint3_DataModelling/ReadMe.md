@@ -1,3 +1,3 @@
-# Mini Project 4: Prediction by Classification and Clustering
+# Sprint 3: Data Modelling 
 
 ### By Ahmad & Hanni
