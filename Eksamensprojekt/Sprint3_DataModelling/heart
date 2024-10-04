@@ -1,25 +1,13 @@
 digraph Tree {
 node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
 edge [fontname="helvetica"] ;
-0 [label=<State &le; 34.5<br/>gini = 0.795<br/>samples = 1600<br/>value = [354, 398, 1, 270, 307, 270]<br/>class = y<SUB>1</SUB>>, fillcolor="#fcfef8"] ;
-1 [label=<State &le; 15.5<br/>gini = 0.743<br/>samples = 1246<br/>value = [0, 398, 1, 270, 307, 270]<br/>class = y<SUB>1</SUB>>, fillcolor="#f6fcec"] ;
+0 [label=<State &le; 21.5<br/>gini = 0.496<br/>samples = 1600<br/>value = [726, 873, 1]<br/>class = y<SUB>1</SUB>>, fillcolor="#defbea"] ;
+1 [label=<gini = 0.0<br/>samples = 873<br/>value = [0, 873, 0]<br/>class = y<SUB>1</SUB>>, fillcolor="#39e581"] ;
 0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
-2 [label=<State &le; 7.5<br/>gini = 0.482<br/>samples = 668<br/>value = [0, 398, 0, 0, 0, 270]<br/>class = y<SUB>1</SUB>>, fillcolor="#dff7bf"] ;
-1 -> 2 ;
-3 [label=<gini = 0.0<br/>samples = 270<br/>value = [0, 0, 0, 0, 0, 270]<br/>class = y<SUB>5</SUB>>, fillcolor="#e5399d"] ;
+2 [label=<# Injured &le; 232.0<br/>gini = 0.003<br/>samples = 727<br/>value = [726, 0, 1]<br/>class = y<SUB>0</SUB>>, fillcolor="#e58139"] ;
+0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+3 [label=<gini = 0.0<br/>samples = 726<br/>value = [726, 0, 0]<br/>class = y<SUB>0</SUB>>, fillcolor="#e58139"] ;
 2 -> 3 ;
-4 [label=<gini = 0.0<br/>samples = 398<br/>value = [0, 398, 0, 0, 0, 0]<br/>class = y<SUB>1</SUB>>, fillcolor="#9de539"] ;
+4 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 1]<br/>class = y<SUB>2</SUB>>, fillcolor="#8139e5"] ;
 2 -> 4 ;
-5 [label=<State &le; 25.5<br/>gini = 0.5<br/>samples = 578<br/>value = [0, 0, 1, 270, 307, 0]<br/>class = y<SUB>4</SUB>>, fillcolor="#f0e7fc"] ;
-1 -> 5 ;
-6 [label=<gini = 0.0<br/>samples = 307<br/>value = [0, 0, 0, 0, 307, 0]<br/>class = y<SUB>4</SUB>>, fillcolor="#8139e5"] ;
-5 -> 6 ;
-7 [label=<# Killed &le; 34.5<br/>gini = 0.007<br/>samples = 271<br/>value = [0, 0, 1, 270, 0, 0]<br/>class = y<SUB>3</SUB>>, fillcolor="#3a9de5"] ;
-5 -> 7 ;
-8 [label=<gini = 0.0<br/>samples = 270<br/>value = [0, 0, 0, 270, 0, 0]<br/>class = y<SUB>3</SUB>>, fillcolor="#399de5"] ;
-7 -> 8 ;
-9 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 1, 0, 0, 0]<br/>class = y<SUB>2</SUB>>, fillcolor="#39e581"] ;
-7 -> 9 ;
-10 [label=<gini = 0.0<br/>samples = 354<br/>value = [354, 0, 0, 0, 0, 0]<br/>class = y<SUB>0</SUB>>, fillcolor="#e58139"] ;
-0 -> 10 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
 }
