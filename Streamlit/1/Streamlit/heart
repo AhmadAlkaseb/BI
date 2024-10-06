@@ -1,0 +1,25 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label=<State &le; 9.5<br/>gini = 0.791<br/>samples = 1600<br/>value = [397, 210, 354, 1, 268, 370]<br/>class = y<SUB>0</SUB>>, fillcolor="#fefcfb"] ;
+1 [label=<gini = 0.0<br/>samples = 397<br/>value = [397, 0, 0, 0, 0, 0]<br/>class = y<SUB>0</SUB>>, fillcolor="#e58139"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label=<State &le; 17.5<br/>gini = 0.739<br/>samples = 1203<br/>value = [0, 210, 354, 1, 268, 370]<br/>class = y<SUB>5</SUB>>, fillcolor="#fffbfd"] ;
+0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+3 [label=<gini = 0.0<br/>samples = 370<br/>value = [0, 0, 0, 0, 0, 370]<br/>class = y<SUB>5</SUB>>, fillcolor="#e5399d"] ;
+2 -> 3 ;
+4 [label=<State &le; 34.5<br/>gini = 0.652<br/>samples = 833<br/>value = [0.0, 210.0, 354.0, 1.0, 268.0, 0.0]<br/>class = y<SUB>2</SUB>>, fillcolor="#e1fbec"] ;
+2 -> 4 ;
+5 [label=<State &le; 25.5<br/>gini = 0.495<br/>samples = 479<br/>value = [0.0, 210.0, 0.0, 1.0, 268.0, 0.0]<br/>class = y<SUB>4</SUB>>, fillcolor="#e4d4f9"] ;
+4 -> 5 ;
+6 [label=<gini = 0.0<br/>samples = 208<br/>value = [0, 208, 0, 0, 0, 0]<br/>class = y<SUB>1</SUB>>, fillcolor="#9de539"] ;
+5 -> 6 ;
+7 [label=<# Killed &le; 34.5<br/>gini = 0.022<br/>samples = 271<br/>value = [0, 2, 0, 1, 268, 0]<br/>class = y<SUB>4</SUB>>, fillcolor="#823be5"] ;
+5 -> 7 ;
+8 [label=<gini = 0.015<br/>samples = 270<br/>value = [0, 2, 0, 0, 268, 0]<br/>class = y<SUB>4</SUB>>, fillcolor="#823ae5"] ;
+7 -> 8 ;
+9 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 0, 1, 0, 0]<br/>class = y<SUB>3</SUB>>, fillcolor="#399de5"] ;
+7 -> 9 ;
+10 [label=<gini = 0.0<br/>samples = 354<br/>value = [0, 0, 354, 0, 0, 0]<br/>class = y<SUB>2</SUB>>, fillcolor="#39e581"] ;
+4 -> 10 ;
+}
