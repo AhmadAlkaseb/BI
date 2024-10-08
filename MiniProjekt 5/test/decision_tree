@@ -1,0 +1,21 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label=<Weapon law strictness score &le; 27.75<br/>gini = 0.602<br/>samples = 1600<br/>value = [236, 811, 553]<br/>class = y<SUB>1</SUB>>, fillcolor="#cef9e0"] ;
+1 [label=<gini = 0.0<br/>samples = 810<br/>value = [0, 810, 0]<br/>class = y<SUB>1</SUB>>, fillcolor="#39e581"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label=<Weapon law strictness score &le; 57.5<br/>gini = 0.421<br/>samples = 790<br/>value = [236, 1, 553]<br/>class = y<SUB>2</SUB>>, fillcolor="#b78ef0"] ;
+0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+3 [label=<# Injured &le; 225.5<br/>gini = 0.009<br/>samples = 219<br/>value = [218, 1, 0]<br/>class = y<SUB>0</SUB>>, fillcolor="#e5823a"] ;
+2 -> 3 ;
+4 [label=<gini = 0.0<br/>samples = 218<br/>value = [218, 0, 0]<br/>class = y<SUB>0</SUB>>, fillcolor="#e58139"] ;
+3 -> 4 ;
+5 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 1, 0]<br/>class = y<SUB>1</SUB>>, fillcolor="#39e581"] ;
+3 -> 5 ;
+6 [label=<State &le; 38.0<br/>gini = 0.061<br/>samples = 571<br/>value = [18, 0, 553]<br/>class = y<SUB>2</SUB>>, fillcolor="#853fe6"] ;
+2 -> 6 ;
+7 [label=<gini = 0.0<br/>samples = 553<br/>value = [0, 0, 553]<br/>class = y<SUB>2</SUB>>, fillcolor="#8139e5"] ;
+6 -> 7 ;
+8 [label=<gini = 0.0<br/>samples = 18<br/>value = [18, 0, 0]<br/>class = y<SUB>0</SUB>>, fillcolor="#e58139"] ;
+6 -> 8 ;
+}
