@@ -339,11 +339,12 @@ if file is not None:
 
     st.markdown("7) *Now I am plotting the correlation of predicted and actual values in a scatterplot:*")
 
+    plt2 = plt.figure(figsize=(10, 6))
     plt.scatter(y_test, y_predictions)
     plt.xlabel('True Values')
     plt.ylabel('Predicted Values')
     plt.title('Predicted vs. Actual Values (r = {0:0.2f})'.format(pearsonr(y_test, y_predictions)[0]))
-    plt.show()
+    st.pyplot(plt2)
 
     st.markdown("*I can conclude that there is a insufficient correlation between predicted and true values.*")
 
@@ -363,6 +364,33 @@ if file is not None:
     metrics_df
 
     st.markdown("*I can conclude that my model is 2,9 % accurate.*")
+
+    st.markdown("## Model Validation")
+    st.markdown("Use the sliders below to input values and see the model's prediction.")
+
+    # Slider for '# Injured'
+    injured = st.slider("Number of Injured", int(X['# Injured'].min()), int(X['# Injured'].max()),
+                        int(X['# Injured'].mean()))
+
+    # Dropdown for 'State' (assuming 'State' is categorical)
+    states = X['State'].unique()
+    state = st.selectbox("State", states)
+
+    # Create input data for prediction
+    input_data = pd.DataFrame({'# Injured': [injured], 'State': [state]})
+
+    # Make prediction
+    prediction = model.predict(input_data)
+
+    st.write(f"Predicted number of killed: {prediction[0]:.2f}")
+
+
+
+
+
+
+
+
     st.divider()
 
     st.markdown("# Polynominal Regression")
@@ -402,13 +430,14 @@ if file is not None:
     st.markdown("7) *Now I plot my model into a scatterplot:*")
 
     def viz_polynomial():
+        plt3 = plt.figure(figsize=(10, 6))
         plt.scatter(X_test, y_test, color='red', label='Actual Data')
         plt.plot(X_test, y_predict, color='blue', label='Polynomial Regression')
         plt.title('Polynomial Regression')
         plt.xlabel('# Injured')
         plt.ylabel('# Killed')
         plt.legend()
-        plt.show()
+        st.pyplot(plt3)
 
     viz_polynomial()
 
@@ -428,6 +457,20 @@ if file is not None:
     metrics_dict
 
     st.markdown("*I can conclude that my model is 14,40% accurate.*")
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
     st.divider()
 
     st.markdown("# Clustering")
