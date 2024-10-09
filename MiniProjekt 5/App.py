@@ -33,46 +33,28 @@ st.markdown("*States with more relaxed gun ownership regulations experience a hi
 st.divider()
 
 st.markdown("# Data Collection")
-st.markdown("We have our data from Kaggle.")
 
 file = st.file_uploader("", type="csv")
-
 
 if file is not None:
     df = pd.read_csv(file)
     st.markdown("# Data Cleaning")
-    st.markdown("*Now I am having a look at the dataframe:*")
-    df
 
-    st.markdown("*Now I want to extend the information from the dataframe:*")
-    buffer = io.StringIO()
-    df.info(buf=buffer)
-    info_str = buffer.getvalue()
-    st.text(info_str)
+    col1, col2 = st.columns(2)
+    with st.expander("Show dataframe before cleaned", expanded=True):
+        st.dataframe(df)
 
-    st.markdown("*Since I don't want to use the following columns:*")
-    st.markdown("*Operations*")
-    st.markdown("*Address*")
-    st.markdown("*City or County*")
-    st.markdown("*Incident ID*")
-    st.markdown("*I will be deleting them since they won't affect my hypothesis.*")
+    with st.expander("Show dataframe information before cleaned", expanded=True):
+        buffer = io.StringIO()
+        df.info(buf=buffer)
+        info_str = buffer.getvalue()
+        st.text(info_str)
+
     df = df.drop(['Operations', 'Address', 'City Or County', 'Incident ID'], axis=1)
-
-    st.markdown("*Let's see, how our dataframe looks now:*")
-    buffer = io.StringIO()
-    df.info(buf=buffer)
-    info_str = buffer.getvalue()
-    st.text(info_str)
-
-
-    st.markdown("*I only want to keep the year in my data column:*")
     df['Incident Date'] = pd.to_datetime(df['Incident Date'])
     df['year'] = df['Incident Date'].dt.year
     df = df.drop('Incident Date', axis=1)
 
-
-    st.markdown("*Data score collected from: https://everytownresearch.org/rankings/*")
-    st.markdown("*Now I want to add for each state their law strictness score.*")
     weapon_law_mapping = {
         'Alabama': 12.50, 'Alaska': 9.00, 'Arizona': 8.50, 'Arkansas': 3.00, 'California': 89.50,
         'Colorado': 63.00, 'Connecticut': 82.50, 'Delaware': 61.50, 'District of Columbia': 69.00,
@@ -86,19 +68,26 @@ if file is not None:
         'Washington': 69.00, 'West Virginia': 18.50, 'Wisconsin': 28.00, 'Wyoming': 6.50
     }
     df['Weapon law strictness score'] = df['State'].map(weapon_law_mapping)
-    st.markdown("*I can conclude that my data has been cleaned and is ready for exploration and analysis.*")
+
+    with st.expander("Show dataframe after cleaned", expanded=True):
+        st.dataframe(df)
+
+    with st.expander("Show dataframe information after cleaned", expanded=True):
+        buffer = io.StringIO()
+        df.info(buf=buffer)
+        info_str = buffer.getvalue()
+        st.text(info_str)
+
     st.divider()
 
-    st.markdown("## Data Exploration & Analysis")
-
-    st.markdown("*To start with I want to just have a look at how the dataframe looks:*")
-    df
-
-    st.markdown("*Here I am printing the descriptive statistics information:*")
-    st.write(df.describe())
+    st.markdown("# Data Exploration & Analysis")
+    col1, col2 = st.columns([1, 1])
 
     def create_plot(plot_name):
-        fig, ax = plt.subplots(figsize=(12, 6))  # Create a figure and axes object
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+        if plot_name == "Descriptive statistics":
+            return df.describe()
 
         if plot_name == "Max Killings by State":
             df_grouped = df.groupby('State')['# Killed'].max().reset_index()
@@ -163,29 +152,53 @@ if file is not None:
             ax.set_xlabel('State')
             ax.set_ylabel('Total Incidents')
 
+        elif plot_name == "Weapon law score by state":
+            df_sorted = df.sort_values(by='Weapon law strictness score', ascending=False)
+            sns.barplot(x='State', y='Weapon law strictness score', data=df_sorted)
+            plt.title('Weapon Law Strictness by State')
+            ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+
         return fig
 
     plot_options = [
-                    "Max Killings by State",
-                    "Max Injured by State",
-                    "State Frequency",
-                    "Box Plot of People Killed",
-                    "Total Incidents by State",
-                    "Total Injured by State",
-                    "Total Killed by State",
-                    "Correlation: Injured vs Killed by State",
-        ]
+        "Max Killings by State",
+        "Max Injured by State",
+        "State Frequency",
+        "Box Plot of People Killed",
+        "Total Incidents by State",
+        "Total Injured by State",
+        "Total Killed by State",
+        "Correlation: Injured vs Killed by State",
+        "Weapon law score by state",
+        "Descriptive statistics",
+    ]
 
-    st.header("Choose a diagram to see")
-    selected_plot = st.selectbox("", plot_options)
-    st.pyplot(create_plot(selected_plot))
+    st.markdown("#### Choose diagrams to see")
+    col1, col2 = st.columns(2)
+
+    selected_plot_1 = col1.selectbox("", plot_options, key="plot1")
+    selected_plot_2 = col2.selectbox("", plot_options, key="plot2")
+
+    with col1:
+        result_1 = create_plot(selected_plot_1)
+        if isinstance(result_1, pd.DataFrame):
+            st.dataframe(result_1)
+        else:
+            st.pyplot(result_1)
+
+    with col2:
+        result_2 = create_plot(selected_plot_2)
+        if isinstance(result_2, pd.DataFrame):
+            st.dataframe(result_2)
+        else:
+            st.pyplot(result_2)
 
     label_encoder = LabelEncoder()
     df['State'] = label_encoder.fit_transform(df['State'])
 
-
     st.header("Correlation heatmap")
     show_heatmap = st.button("Show Correlation Heatmap")
+
     if show_heatmap:
         corr_matrix = df.corr()
         plt.figure(figsize=(12, 10))
@@ -193,521 +206,449 @@ if file is not None:
         plt.title('Correlation Heatmap')
         st.pyplot(plt)
 
-
-
-
-
-
     st.divider()
-
-
 
     st.markdown("# Data modellering")
 
-    st.markdown("## Linear Regression (Numeric)")
-    df_injured = df.groupby('State')['# Injured'].sum().reset_index()
-    df_killed = df.groupby('State')['# Killed'].sum().reset_index()
-    df_grouped = pd.merge(df_injured, df_killed, on='State')
+    def create_download_button(model, model_name):
+        buffer = io.BytesIO()
+        joblib.dump(model, buffer)
+        buffer.seek(0)
 
-    df_grouped = shuffle(df_grouped, random_state=42)
+        st.header("Download the model")
 
-    DV = '# Killed'
-    X = df_grouped[['# Injured']]
-    y = df_grouped[DV]
+        st.download_button(
+            label="Download Model",
+            data=buffer,
+            file_name=f"{model_name}.pkl",
+            mime="application/octet-stream"
+        )
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+    def linear_regression():
+        df_injured = df.groupby('State')['# Injured'].sum().reset_index()
+        df_killed = df.groupby('State')['# Killed'].sum().reset_index()
+        df_grouped = pd.merge(df_injured, df_killed, on='State')
+        df_grouped = shuffle(df_grouped, random_state=42)
 
-    model = LinearRegression()
+        DV = '# Killed'
+        X = df_grouped[['# Injured']]
+        y = df_grouped[DV]
 
-    model.fit(X_train[['# Injured']], y_train)
-    st.write("Interception: ",model.intercept_)
-    st.write("Coefficient: ", model.coef_)
-    st.write("The formula: Killed = {0:0.2f} + ({1:0.2f} x injured)".format(model.intercept_, model.coef_[0]))
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
 
-    y_predictions = model.predict(X_test[['# Injured']])
+        model = LinearRegression()
+        model.fit(X_train[['# Injured']], y_train)
 
-    plt1 = plt.figure(figsize=(10, 6))
-    plt.scatter(y_test, y_predictions, color='blue', alpha=0.5)
-    plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r-', lw=2)
-    plt.xlabel('True Values')
-    plt.ylabel('Predicted Values')
-    plt.title('Predicted vs. Actual Values (r = {0:0.2f})'.format(pearsonr(y_test, y_predictions)[0]))
+        y_predictions = model.predict(X_test[['# Injured']])
+
+        coefficient = model.coef_[0]
+        intercept = model.intercept_
+        formula = f"y = {intercept:.4f} + {coefficient:.4f}x"
+
+        st.latex(formula)
+
+        col1, col2 = st.columns([2, 1])  # Adjust the ratio as needed
+
+        with col1:
+            plt1 = plt.figure(figsize=(10, 6))
+            plt.scatter(y_test, y_predictions, color='blue', alpha=0.5)
+            plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r-', lw=2)
+            plt.xlabel('True Values')
+            plt.ylabel('Predicted Values')
+            plt.title('Predicted vs. Actual Values (r = {0:0.2f})'.format(pearsonr(y_test, y_predictions)[0]))
+            equation_text = f'y = {model.intercept_:.2f} + {model.coef_[0]:.2f}x'
+            plt.text(0.05, 0.95, equation_text, transform=plt.gca().transAxes, fontsize=10, verticalalignment='top')
+            st.pyplot(plt1)
 
-    # Add text for the equation
-    equation_text = f'y = {model.intercept_:.2f} + {model.coef_[0]:.2f}x'
-    plt.text(0.05, 0.95, equation_text, transform=plt.gca().transAxes, fontsize=10, verticalalignment='top')
+        with col2:
+            metrics_df = pd.DataFrame({
+                'Metric': ['MAE', 'MSE', 'RMSE', 'R-Squared'],
+                'Value': [
+                    metrics.mean_absolute_error(y_test, y_predictions),
+                    metrics.mean_squared_error(y_test, y_predictions),
+                    np.sqrt(metrics.mean_squared_error(y_test, y_predictions)),
+                    metrics.explained_variance_score(y_test, y_predictions)
+                ]
+            }).round(3)
+            st.write("Model Metrics:")
+            st.dataframe(metrics_df, hide_index=True)
 
-    st.pyplot(plt1)
+        st.markdown("## Model Validation")
+        st.write("Use the slider below to input a number of injuries and see the predicted number of fatalities.")
 
-    metrics_df = pd.DataFrame({'Metric': ['MAE',
-                                          'MSE',
-                                          'RMSE',
-                                          'R-Squared'],
-                              'Value': [metrics.mean_absolute_error(y_test, y_predictions),
-                                        metrics.mean_squared_error(y_test, y_predictions),
-                                        np.sqrt(metrics.mean_squared_error(y_test, y_predictions)),
-                                        metrics.explained_variance_score(y_test, y_predictions)]}).round(3)
+        user_input = st.slider("Number of Injuries", 0, 600)
 
-    st.write(metrics_df)
+        user_prediction = model.predict([[user_input]])[0]
 
-    st.write("Use the slider below to input a number of injuries and see the predicted number of fatalities.")
+        st.write(f"Predicted number of killed: {user_prediction:.0f}")
 
-    # Add this section after your original code
-    st.markdown("## Model Validation")
-    st.write("Use the slider below to input a number of injuries and see the predicted number of fatalities.")
+        plot_df = pd.DataFrame({
+            'Injuries': X_test['# Injured'],
+            'Actual Fatalities': y_test,
+            'Predicted Fatalities': y_predictions
+        })
 
-    # Create a slider for user input
-    user_input = st.slider("Number of Injuries", min_value=0, max_value=int(X['# Injured'].max()), value=0)
+        user_point_df = pd.DataFrame({'Injuries': [user_input], 'Predicted Fatalities': [user_prediction]})
+        plot_df = pd.concat([plot_df, user_point_df], ignore_index=True)
 
-    # Make prediction based on user input
-    user_prediction = model.predict([[user_input]])[0]
+        create_download_button(model, "linear_model")
 
-    # Display the prediction
-    st.write(f"Predicted number of killed: {user_prediction:.0f}")
+    def multiple_regression():
 
-    # Create a DataFrame for plotting
-    plot_df = pd.DataFrame({
-        'Injuries': X_test['# Injured'],
-        'Actual Fatalities': y_test,
-        'Predicted Fatalities': y_predictions
-    })
+        df_shuffled = shuffle(df, random_state=42)
 
-    # Add user input point using concat instead of append
-    user_point_df = pd.DataFrame({'Injuries': [user_input], 'Predicted Fatalities': [user_prediction]})
-    plot_df = pd.concat([plot_df, user_point_df], ignore_index=True)
+        DV = '# Killed'
+        X = df_shuffled[['# Injured', 'State']]
+        y = df_shuffled[DV]
 
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42)
 
+        model = LinearRegression()
 
-    st.divider()
+        model.fit(pd.get_dummies(X_train), y_train)
 
+        feature_names = pd.get_dummies(X).columns
+        equation = ' + '.join(f'({coef:0.2f} x {name})' for coef, name in zip(model.coef_, feature_names))
 
+        y_predictions = model.predict(pd.get_dummies(X_test))
 
+        feature_names = X.columns
+        coefficients = model.coef_
+        intercept = model.intercept_
+        formula = f"y = {intercept:.4f}"
+        for name, coef in zip(feature_names, coefficients):
+            formula += f" + {coef:.4f} * {name}"
 
+        st.latex(formula)
 
+        col1, col2 = st.columns([2, 1])  # Adjust the ratio as needed
 
+        with col1:
+            plt2 = plt.figure(figsize=(10, 6))
+            plt.scatter(y_test, y_predictions)
+            plt.xlabel('True Values')
+            plt.ylabel('Predicted Values')
+            plt.title('Predicted vs. Actual Values (r = {0:0.2f})'.format(pearsonr(y_test, y_predictions)[0]))
+            st.pyplot(plt2)
 
+        with col2:
+            metrics_df = pd.DataFrame({
+                'Metric': ['MAE', 'MSE', 'RMSE', 'R-Squared'],
+                'Value': [
+                    metrics.mean_absolute_error(y_test, y_predictions),
+                    metrics.mean_squared_error(y_test, y_predictions),
+                    np.sqrt(metrics.mean_squared_error(y_test, y_predictions)),
+                    metrics.explained_variance_score(y_test, y_predictions)
+                ]
+            }).round(3)
+            st.write("Model Metrics:")
+            st.dataframe(metrics_df, hide_index=True)
 
+        st.markdown("## Model Validation")
+        st.markdown("Use the sliders below to input values and see the model's prediction.")
 
+        injured = st.slider("Number of Injured", 0, 600)
 
+        states = X['State'].unique()
+        state = st.selectbox("State", states)
 
+        input_data = pd.DataFrame({'# Injured': [injured], 'State': [state]})
 
+        prediction = model.predict(pd.get_dummies(input_data))
 
+        st.write(f"Predicted number of killed: {prediction[0]:.2f}")
 
+        create_download_button(model, "multiple_model")
 
+    def polynomial_regression():
 
+        df_grouped = df.groupby('State').agg({'# Injured': 'sum', '# Killed': 'sum'}).reset_index()
+        df_shuffled = shuffle(df_grouped, random_state=42)
 
+        DV = '# Killed'
+        X = df_shuffled[['# Injured']]
+        y = df_shuffled[DV]
 
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=0)
 
-    st.markdown("# Multiple Regression (Nominal)")
+        sc_X = StandardScaler()
+        X_train_scaled = sc_X.fit_transform(X_train)
+        X_test_scaled = sc_X.transform(X_test)
+        poly = PolynomialFeatures(degree=5)
+        X_train_poly = poly.fit_transform(X_train_scaled)
+        X_test_poly = poly.transform(X_test_scaled)
 
-    st.markdown("1) *First I will shuffle the data:*")
+        pol_reg = LinearRegression()
+        pol_reg.fit(X_train_poly, y_train)
 
-    df_shuffled = shuffle(df, random_state=42)
+        coefficients = pol_reg.coef_
+        intercept = pol_reg.intercept_
+        formula = f"y = {intercept:.4f}"
+        for i, coef in enumerate(coefficients[1:], 1):  # Skip the first coefficient (it's always 1)
+            if coef != 0:
+                formula += f" + {coef:.4f}x^{i}"
+        st.latex(formula)
 
-    st.markdown("2) *Then I am creating the dependent and independent variabels.*")
+        y_predict = pol_reg.predict(X_test_poly)
 
-    DV = '# Killed'
-    X = df_shuffled[['# Injured', 'State']]
-    y = df_shuffled[DV]
-
-    st.markdown("3) *Now I am splitting my data using the following model:*")
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42)
-
-    st.markdown("4) *Now I am creating an object of LinearRegression.*")
-
-    model = LinearRegression()
-
-    st.markdown("5) *Now I am training my model:*")
-
-    model.fit(X_train, y_train)
-
-    st.markdown("Here I am printing out the following:*)")
-    st.markdown("* *Interception*")
-    st.markdown("* *Coefficient*")
-    st.markdown("* *The formula*")
-
-    print('Intercept:', model.intercept_)
-    print('Coefficients:', model.coef_)
-    feature_names = X.columns
-    equation = ' + '.join(f'({coef:0.2f} x {name})' for coef, name in zip(model.coef_, feature_names))
-    print(f'Killed = {model.intercept_:0.2f} + {equation}')
-
-    st.markdown("6) *Now I am testing my model:*")
-
-    y_predictions = model.predict(X_test)
-
-    st.markdown("7) *Now I am plotting the correlation of predicted and actual values in a scatterplot:*")
-
-    plt2 = plt.figure(figsize=(10, 6))
-    plt.scatter(y_test, y_predictions)
-    plt.xlabel('True Values')
-    plt.ylabel('Predicted Values')
-    plt.title('Predicted vs. Actual Values (r = {0:0.2f})'.format(pearsonr(y_test, y_predictions)[0]))
-    st.pyplot(plt2)
-
-    st.markdown("*I can conclude that there is a insufficient correlation between predicted and true values.*")
-
-    st.markdown("8) *Now I am creating the metrics dataframe:*")
-
-    metrics_df = pd.DataFrame({'Metric': ['MAE',
-                                          'MSE',
-                                          'RMSE',
-                                          'R-Squared'],
-                              'Value': [metrics.mean_absolute_error(y_test, y_predictions),
-                                        metrics.mean_squared_error(y_test, y_predictions),
-                                        np.sqrt(metrics.mean_squared_error(y_test, y_predictions)),
-                                        metrics.explained_variance_score(y_test, y_predictions)]}).round(3)
-
-    st.markdown("*Printing out the metrics dataframe:*")
-
-    metrics_df
-
-    st.markdown("*I can conclude that my model is 2,9 % accurate.*")
-
-    st.markdown("## Model Validation")
-    st.markdown("Use the sliders below to input values and see the model's prediction.")
-
-    # Slider for '# Injured'
-    injured = st.slider("Number of Injured", int(X['# Injured'].min()), int(X['# Injured'].max()),
-                        int(X['# Injured'].mean()))
-
-    # Dropdown for 'State' (assuming 'State' is categorical)
-    states = X['State'].unique()
-    state = st.selectbox("State", states)
-
-    # Create input data for prediction
-    input_data = pd.DataFrame({'# Injured': [injured], 'State': [state]})
-
-    # Make prediction
-    prediction = model.predict(input_data)
-
-    st.write(f"Predicted number of killed: {prediction[0]:.2f}")
-
-
-
-
-
-
-
-
-    st.divider()
-
-    st.markdown("# Polynominal Regression")
-
-    st.markdown("1) *Here I shuffling the my data:*")
-
-    df_shuffled = shuffle(df_grouped, random_state=42)
-
-    st.markdown("2) *Then I am creating the dependent and independent variabels:*")
-
-    DV = '# Killed'
-    X = df_shuffled[['# Injured']]
-    y = df_shuffled[DV]
-
-    st.markdown("3) *Then I am splitting my data:*")
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=0)
-
-    st.markdown("4) *Now I feature scale my data:*")
-
-    sc_X = StandardScaler()
-    X_train = sc_X.fit_transform(X_train)
-    X_test = sc_X.transform(X_test)
-    poly = PolynomialFeatures(degree=5)
-    X_train_poly = poly.fit_transform(X_train)
-    X_test_poly = poly.transform(X_test)
-
-    st.markdown("5) *Now I fit the Polynomial Regression model.*")
-
-    pol_reg = LinearRegression()
-    pol_reg.fit(X_train_poly, y_train)
-
-    st.markdown("6) *Now I test my model.*")
-
-    y_predict = pol_reg.predict(X_test_poly)
-
-    st.markdown("7) *Now I plot my model into a scatterplot:*")
-
-    def viz_polynomial():
         plt3 = plt.figure(figsize=(10, 6))
         plt.scatter(X_test, y_test, color='red', label='Actual Data')
-        plt.plot(X_test, y_predict, color='blue', label='Polynomial Regression')
-        plt.title('Polynomial Regression')
-        plt.xlabel('# Injured')
-        plt.ylabel('# Killed')
-        plt.legend()
-        st.pyplot(plt3)
+        plt.scatter(X_test, y_predict, color='blue', label='Predicted Data')
 
-    viz_polynomial()
+        X_test_sorted = np.sort(X_test, axis=0)
+        X_test_sorted_scaled = sc_X.transform(X_test_sorted)
+        X_test_sorted_poly = poly.transform(X_test_sorted_scaled)
+        y_predict_sorted = pol_reg.predict(X_test_sorted_poly)
 
-    st.markdown("*I can conclude that my model looks insufficient to use.*")
+        col1, col2 = st.columns([2, 1])
 
-    st.markdown("8) *Now I calculate the metrics dataframe:*")
+        with col1:
+            plt3 = plt.figure(figsize=(10, 6))
+            plt.scatter(X_test, y_test, color='red', label='Actual Data')
+            plt.scatter(X_test, y_predict, color='blue', label='Predicted Data')
+            plt.plot(X_test_sorted, y_predict_sorted, color='green', label='Polynomial Regression Line')
+            plt.title('Polynomial Regression')
+            plt.xlabel('# Injured')
+            plt.ylabel('# Killed')
+            plt.legend()
+            st.pyplot(plt3)
 
-    metrics_dict = {
-        'MAE': metrics.mean_absolute_error(y_test, y_predict),
-        'MSE': metrics.mean_squared_error(y_test, y_predict),
-        'RMSE': np.sqrt(metrics.mean_squared_error(y_test, y_predict)),
-        'R-Squared': metrics.r2_score(y_test, y_predict)
-    }
+        with col2:
+            metrics_dict = {
+                'MAE': metrics.mean_absolute_error(y_test, y_predict),
+                'MSE': metrics.mean_squared_error(y_test, y_predict),
+                'RMSE': np.sqrt(metrics.mean_squared_error(y_test, y_predict)),
+                'R-Squared': metrics.r2_score(y_test, y_predict)
+            }
+            st.write("Model Metrics:")
+            for metric, value in metrics_dict.items():
+                st.write(f"{metric}: {value:.4f}")
 
-    st.markdown("*Printing out the metrics dataframe:*")
+        st.markdown("## Model Validation")
+        st.markdown("Use the slider below to input values and see the model's prediction.")
 
-    metrics_dict
+        injured = st.slider("Number of Injured", 0, 600)
 
-    st.markdown("*I can conclude that my model is 14,40% accurate.*")
+        input_data = np.array([[injured]])
+        input_data_scaled = sc_X.transform(input_data)
+        input_data_poly = poly.transform(input_data_scaled)
 
-    
+        prediction = pol_reg.predict(input_data_poly)
 
+        st.write(f"Predicted number of killed: {prediction[0]:.0f}")
 
+        create_download_button(pol_reg, "polynomial_model")
 
+    regression_options = [
+        "Linear Regression (Numeric)",
+        "Multiple Regression (Nominal)",
+        "Polynomial Regression"
+    ]
 
+    selected_regression = st.selectbox(
+        "Choose a regression type:",
+        regression_options
+    )
 
-
-
-
-
-
-
+    if selected_regression == "Linear Regression (Numeric)":
+        st.subheader("Linear Regression (Numeric)")
+        linear_regression()
+    elif selected_regression == "Multiple Regression (Nominal)":
+        st.subheader("Multiple Regression (Nominal)")
+        multiple_regression()
+    else:
+        st.subheader("Polynomial Regression")
+        polynomial_regression()
 
     st.divider()
 
     st.markdown("# Clustering")
 
-    st.markdown("1) *Here I am creating the variabel needed for the clustering:*")
-
     X = (df[['State', '# Killed', '# Injured', 'year', 'Weapon law strictness score']])
 
-    st.markdown("2) *Taking a look at the variabel:*")
-
-    X
-
-    st.markdown("3) *Calculating the distortions:*")
-
     distortions = []
-    K = range(2,10)
+    K = range(2, 10)
     for k in K:
         model = KMeans(n_clusters=k, n_init="auto").fit(X)
         distortions.append(sum(np.min(cdist(X, model.cluster_centers_, 'euclidean'), axis=1)) / X.shape[0])
-    print("Distortion: ", distortions)
-
-    st.markdown("4) *Here I am showing the elbow diagram to see the optimal number of clusters:*")
-
-    plt.title('Elbow Method for Optimal K')
-    plt.plot(K, distortions, 'bx-')
-    plt.xlabel('K')
-    plt.ylabel('Distortion')
-    plt.show()
-
-    st.markdown("*I can here conclude that the optimal of clusters would be: 6*")
-
-    st.markdown("5) *Here I determine the number of max clusters using the silhouette score method.*")
 
     scores = []
-    K = range(2,10)
     for k in K:
         model = KMeans(n_clusters=k, n_init=10)
         model.fit(X)
         score = metrics.silhouette_score(X, model.labels_, metric='euclidean', sample_size=len(X))
-        print("\nNumber of clusters =", k)
-        print("Silhouette score =", score)
         scores.append(score)
 
-    st.markdown("*Here again I am showing the elbow diagram by silhouette score method.*")
+    col1, col2 = st.columns(2)
 
-    plt.title('Silhouette Score Method for Discovering the Optimal K')
-    plt.plot(K, scores, 'bx-')
-    plt.xlabel('K')
-    plt.ylabel('Silhouette Score')
-    plt.show()
+    with col1:
+        plt5 = plt.figure(figsize=(10, 6))
+        plt.title('Elbow Method for Optimal K')
+        plt.plot(K, distortions, 'bx-')
+        plt.xlabel('K')
+        plt.ylabel('Distortion')
+        st.pyplot(plt5)
 
-    st.markdown("*I can here conclude that the optimal number of clusters would be: 3*")
-
-    st.markdown("*Time to create the model:*")
-
-    st.markdown("1) *Variabel to hold our number of clusters.*")
-
-    num_clusters = 3
-
-    st.markdown("2) *Creating the model:*")
-
-    kmeans = KMeans(init='k-means++', n_clusters=num_clusters, n_init="auto")
-
-    st.markdown("3) *Training the model with my data:*")
-
-    kmeans.fit(X)
-
-    st.markdown("4) *Printing out the labels:*")
+    with col2:
+        plt6 = plt.figure(figsize=(10, 6))
+        plt.title('Silhouette Score Method for Optimal K')
+        plt.plot(K, scores, 'bx-')
+        plt.xlabel('K')
+        plt.ylabel('Silhouette Score')
+        st.pyplot(plt6)
 
     np.set_printoptions(threshold=np.inf)
-    kmeans.labels_
 
-    st.markdown("5) *Here I want to review the clusters:*")
+    n_clusters = st.slider("Select number of clusters", min_value=2, max_value=10, value=3)
 
-    visualizer = SilhouetteVisualizer(kmeans, colors='yellowbrick')
+    kmeans = KMeans(n_clusters=n_clusters, n_init=10, random_state=42)
+    kmeans.fit(X)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    visualizer = SilhouetteVisualizer(kmeans, colors='yellowbrick', ax=ax)
+
     visualizer.fit(X)
-    visualizer.show()
 
-    st.markdown("*I can conclude that they're not equally in size, but they're above 0,50.*")
-    st.divider()
+    st.pyplot(fig)
 
-    st.markdown("## Validate the model")
-
-    st.markdown("1) *Trying out my model:*")
-
-    test1 = pd.DataFrame([[1, 2, 0, 3, 4]], columns=['State', '# Killed', '# Injured', 'year', 'Weapon law strictness score'])
-    test2 = pd.DataFrame([[8, 0, 4, 2021, 3]], columns=['State', '# Killed', '# Injured', 'year', 'Weapon law strictness score'])
-
-    print(kmeans.predict(test1))
-    print(kmeans.predict(test2) == 1)
-
-    st.markdown("2) *I will now divide my data into clusters using my model:*")
+    st.markdown("Validate model")
 
     df['cluster'] = kmeans.predict(df[['State', '# Killed', '# Injured', 'year', 'Weapon law strictness score']])
 
-    st.markdown("*I am now ready to use my dataframe for classification.*")
-    st.divider()
+    state = st.number_input("State", min_value=0, max_value=50, value=1)
+    killed = st.number_input("# Killed", min_value=0, max_value=600)
+    injured = st.number_input("# Injured", min_value=0, max_value=600)
+    year = st.number_input("Year", min_value=2000, max_value=2030)
+    weapon_law_score = st.number_input("Weapon Law Strictness Score", min_value=0, max_value=100)
 
-    st.markdown("## Decision-Tree-Classification")
+    user_input_df = pd.DataFrame([[state, killed, injured, year, weapon_law_score]],
+                                  columns=['State', '# Killed', '# Injured', 'year', 'Weapon law strictness score'])
 
-    st.markdown("1 *Here I am Converting the data into an array.*")
+    predicted_cluster = kmeans.predict(user_input_df)[0]
+    st.write(f"The provided data will be in label: {predicted_cluster}")
 
-    array = df.values
+    create_download_button(kmeans, "cluster_model")
 
-    st.markdown("2) *Now I will divide the data into dependent and independent values:*")
+    def plot_confusion_matrix(cm):
+        fig, ax = plt.subplots(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
+        plt.title('Confusion Matrix')
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label')
+        return fig
 
-    X, y = array[:,:-1], array[:,-1]
+    def decision_tree_classification():
+        array = df.values
+        X, y = array[:,:-1], array[:,-1]
+        set_prop = 0.2
+        seed = 7
+        X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=set_prop, random_state=seed)
+        params = {'max_depth': 5}
+        classifier = DecisionTreeClassifier(**params)
+        classifier.fit(X_train, y_train)
 
-    st.markdown("3) *Separating my input data into classes based on labels:*")
+        gr_data = tree.export_graphviz(classifier, out_file=None,
+                                       feature_names = df.columns[:X.shape[1]], class_names = True,
+                                       filled=True, rounded=True, proportion = False, special_characters=True)
+        st.graphviz_chart(gr_data)
 
-    class0 = np.array(X[y==0])
-    class1 = np.array(X[y==1])
-    class2 = np.array(X[y==2])
-    class3 = np.array(X[y==3])
-    class4 = np.array(X[y==4])
-    class5 = np.array(X[y==5])
-    class6 = np.array(X[y==6])
+        y_testp = classifier.predict(X_test)
 
-    st.markdown("4) *Initiating two variabels for the model:*")
-    st.markdown("* *set_prop = data left for comparing the model.*")
-    st.markdown("* *seed = random value to always get the same random numbere, when splitting the data.*")
+        col1, col2 = st.columns(2)
 
-    set_prop = 0.2
-    seed = 7
+        with col1:
+            cm = confusion_matrix(y_test, y_testp)
+            st.pyplot(plot_confusion_matrix(cm))
 
-    st.markdown("5) *Now I will split the data:*")
+        with col2:
+            st.text("Classification Report:")
+            report = classification_report(y_test, y_testp)
+            st.text(report)
 
-    X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=set_prop, random_state=seed)
+        accuracy = accuracy_score(y_test, y_testp) * 100
+        st.write(f"Accuracy: {accuracy:.0f}%")
 
-    st.markdown("6) *Now I am build my decision tree*")
+        st.write("Try out the model")
+        state = st.number_input("State (Numerical)", min_value=0, max_value=100, value=0)
+        killed = st.number_input("# Killed", min_value=0, max_value=600, value=0)
+        injured = st.number_input("# Injured", min_value=0, max_value=600, value=0)
+        year = st.number_input("Year", min_value=2000, max_value=2030, value=2000)
+        weapon_law_score = st.number_input("Weapon Law Strictness Score", min_value=0, max_value=100, value=0)
 
-    params = {'max_depth': 5}
-    classifier = DecisionTreeClassifier(**params)
-    classifier.fit(X_train, y_train)
-    gr_data = tree.export_graphviz(classifier, out_file=None,
-                             feature_names = df.columns[:X.shape[1]], class_names = True,
-                             filled=True, rounded=True, proportion = False, special_characters=True)
-    dtree = graphviz.Source(gr_data)
+        user_input_df = pd.DataFrame([[state, killed, injured, year, weapon_law_score]],
+                                     columns=['State', '# Killed', '# Injured', 'year', 'Weapon law strictness score'])
 
-    st.markdown("7) *Loading my decision tree:*")
+        my_prediction = classifier.predict(user_input_df)[0]
 
-    dtree.render("heart")
+        st.markdown(f"🎉 Your input has been classified into **Cluster {my_prediction:.0f}**")
 
-    st.markdown("8) *Print out my tree:*")
+        create_download_button(classifier, "decision_tree_model")
 
-    dtree
 
-    st.markdown("9) *Testing my model:*")
+    def plot_confusion_matrix(cm):
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False,
+                    xticklabels=['Cluster 0', 'Cluster 1', 'Cluster 2'],  # Adjust based on your labels
+                    yticklabels=['Cluster 0', 'Cluster 1', 'Cluster 2'])  # Adjust based on your labels
+        plt.ylabel('True Label')
+        plt.xlabel('Predicted Label')
+        plt.title('Confusion Matrix')
+        return plt.gcf()
 
-    y_testp = classifier.predict(X_test)
 
-    st.markdown("10) *Printing out the confusion:*")
+    def naive_bayes_classification():
+        array = df.values
+        X = array[:, 0:4]
+        Y = array[:, 5]
 
-    confusion = pd.crosstab(y_test,y_testp)
-    confusion
+        test_set_size = 0.2
+        seed = 7
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=test_set_size, random_state=seed)
 
-    st.markdown(confusion)
+        modell = GaussianNB()
+        modell.fit(X_train, Y_train)
 
-    print ("Accuracy is ", accuracy_score(y_test,y_testp))
+        prediction = modell.predict(X_test)
 
-    st.markdown("*I can conclude that this model's accuracy is 100 %.*")
+        col1, col2 = st.columns(2)
 
-    st.markdown("11) *Print out the classification report:*")
+        with col1:
+            st.write("Confusion Matrix:")
+            cm = confusion_matrix(Y_test, prediction)
+            st.pyplot(plot_confusion_matrix(cm))
 
-    class_names = ['Class0', 'Class1', 'Class2']
-    print(classification_report(y_train, classifier.predict(X_train), target_names=class_names))
-    plt.show()
-    st.divider()
+        with col2:
+            st.text("Classification Report:")
+            report = classification_report(Y_test, prediction)
+            st.text(report)
 
-    st.markdown("# Naive Bayes Classification")
+        accuracy = accuracy_score(Y_test, prediction) * 100
+        st.write(f"Accuracy: {accuracy:.0f}%")
 
-    st.markdown("1) *Converting my dataframe into an array:*")
+        st.write("Try out the model")
+        state = st.number_input("State (Numerical)", min_value=0, max_value=100, value=0)
+        killed = st.number_input("# Killed", min_value=0, max_value=600, value=0)
+        injured = st.number_input("# Injured", min_value=0, max_value=600, value=0)
+        year = st.number_input("Year", min_value=2000, max_value=2030, value=2000)
+        weapon_law_score = st.number_input("Weapon Law Strictness Score", min_value=0.0, max_value=100.0, value=0.0)
 
-    array = df.values
+        user_input_df = pd.DataFrame([[state, killed, injured, year]],  # Note that we only need the features
+                                     columns=['State', '# Killed', '# Injured', 'year'])
 
-    st.markdown("2) *Creating two (sub) arrays from the dataframe:*")
+        my_prediction = modell.predict(user_input_df)[0]
 
-    X = array[:,0:4]
-    Y = array[:, 4]
+        st.markdown(f"🎉 Your input has been classified into **Cluster {my_prediction}**")
 
-    bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    labels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    Y_binned = pd.cut(Y, bins=bins, labels=labels)
+        create_download_button(modell, "naive_bayes_model")
 
-    st.markdown("3) *Splitting the data using this model:*")
+    st.title("Classification")
 
-    test_set_size = 0.2
-    seed = 7
-    X_train, X_test, Y_train, Y_test = model_selection.train_test_split(X, Y_binned, test_size=test_set_size, random_state=seed)
+    classification_method = st.selectbox(
+        "Choose a classification method:",
+        ("Decision Tree Classification", "Naive Bayes Classification")
+    )
 
-    st.markdown("4) *Building my model:*")
-
-    model = GaussianNB()
-    model.fit(X_train, Y_train)
-
-    st.markdown("5) *Testing my model:*")
-
-    model.score(X_test, Y_test)
-
-    st.markdown("6) *Testing the model*")
-
-    prediction = model.predict(X_test)
-
-    st.markdown("7) *Getting the amount of rows:*")
-
-    st.markdown(prediction.shape[0])
-
-    st.markdown("8) *Calculating accuracy of the model for my real data compared with my predictions:*")
-
-    print(accuracy_score(Y_test, prediction))
-
-    st.markdown("9) *Printing out the classification report:*")
-
-    cmat = confusion_matrix(Y_test, prediction)
-    print(cmat)
-    print(classification_report(Y_test, prediction))
-
-    st.markdown("*I can conclude that the model's accuracy is 42%. This makes it worse than the decision tree model.*")
-    st.divider()
-
-    st.markdown("# Data Validation")
-
-    st.markdown("*Since my decision tree model has an higher accuracy, I will continue with that one.*")
-
-    st.markdown("*Validating my decision tree model:*")
-    k = [[1, 0, 8, 2023, 3]]
-    my_prediction = classifier.predict(k)
-    my_prediction
-    st.divider()
-
-    st.markdown("# Deployment and optimization")
-    st.markdown("*Exporting my model:*")
-    joblib.dump(kmeans, 'kmmodel.pkl')
-
-    st.markdown("*Loading my model:*")
-    model = joblib.load('kmmodel.pkl')
-    st.divider()
-
-    st.markdown("#### Conclusion")
-    st.markdown("*I can after my analysis conclude that there is no correlation between law strictness and amount of school shootings.*")
+    if classification_method == "Decision Tree Classification":
+        decision_tree_classification()
+    elif classification_method == "Naive Bayes Classification":
+        naive_bayes_classification()
