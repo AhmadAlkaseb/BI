@@ -1,25 +1,17 @@
 digraph Tree {
 node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
 edge [fontname="helvetica"] ;
-0 [label=<Weapon law strictness score &le; 57.5<br/>gini = 0.729<br/>samples = 1600<br/>value = [437.0, 548.0, 390.0, 1.0, 224.0]<br/>class = y<SUB>1</SUB>>, fillcolor="#f2fdec"] ;
-1 [label=<State &le; 19.5<br/>gini = 0.638<br/>samples = 1029<br/>value = [437, 0, 390, 1, 201]<br/>class = y<SUB>0</SUB>>, fillcolor="#fdf6f0"] ;
+0 [label=<Weapon law strictness score &le; 51.25<br/>gini = 0.665<br/>samples = 1600<br/>value = [584, 537, 479]<br/>class = y<SUB>0</SUB>>, fillcolor="#fef9f6"] ;
+1 [label=<State &le; 25.5<br/>gini = 0.498<br/>samples = 1016<br/>value = [0, 537, 479]<br/>class = y<SUB>1</SUB>>, fillcolor="#eafcf1"] ;
 0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
-2 [label=<gini = 0.0<br/>samples = 390<br/>value = [0, 0, 390, 0, 0]<br/>class = y<SUB>2</SUB>>, fillcolor="#39e5c5"] ;
+2 [label=<Weapon law strictness score &le; 31.25<br/>gini = 0.148<br/>samples = 521<br/>value = [0, 42, 479]<br/>class = y<SUB>2</SUB>>, fillcolor="#8c4ae7"] ;
 1 -> 2 ;
-3 [label=<Weapon law strictness score &le; 31.5<br/>gini = 0.433<br/>samples = 639<br/>value = [437, 0, 0, 1, 201]<br/>class = y<SUB>0</SUB>>, fillcolor="#f1bb94"] ;
-1 -> 3 ;
-4 [label=<gini = 0.0<br/>samples = 437<br/>value = [437, 0, 0, 0, 0]<br/>class = y<SUB>0</SUB>>, fillcolor="#e58139"] ;
-3 -> 4 ;
-5 [label=<# Killed &le; 36.0<br/>gini = 0.01<br/>samples = 202<br/>value = [0, 0, 0, 1, 201]<br/>class = y<SUB>4</SUB>>, fillcolor="#e53ac0"] ;
-3 -> 5 ;
-6 [label=<gini = 0.0<br/>samples = 201<br/>value = [0, 0, 0, 0, 201]<br/>class = y<SUB>4</SUB>>, fillcolor="#e539c0"] ;
-5 -> 6 ;
-7 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 0, 1, 0]<br/>class = y<SUB>3</SUB>>, fillcolor="#3c39e5"] ;
-5 -> 7 ;
-8 [label=<State &le; 32.0<br/>gini = 0.077<br/>samples = 571<br/>value = [0, 548, 0, 0, 23]<br/>class = y<SUB>1</SUB>>, fillcolor="#81e641"] ;
-0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
-9 [label=<gini = 0.0<br/>samples = 548<br/>value = [0, 548, 0, 0, 0]<br/>class = y<SUB>1</SUB>>, fillcolor="#7be539"] ;
-8 -> 9 ;
-10 [label=<gini = 0.0<br/>samples = 23<br/>value = [0, 0, 0, 0, 23]<br/>class = y<SUB>4</SUB>>, fillcolor="#e539c0"] ;
-8 -> 10 ;
+3 [label=<gini = 0.0<br/>samples = 479<br/>value = [0, 0, 479]<br/>class = y<SUB>2</SUB>>, fillcolor="#8139e5"] ;
+2 -> 3 ;
+4 [label=<gini = 0.0<br/>samples = 42<br/>value = [0, 42, 0]<br/>class = y<SUB>1</SUB>>, fillcolor="#39e581"] ;
+2 -> 4 ;
+5 [label=<gini = 0.0<br/>samples = 495<br/>value = [0, 495, 0]<br/>class = y<SUB>1</SUB>>, fillcolor="#39e581"] ;
+1 -> 5 ;
+6 [label=<gini = 0.0<br/>samples = 584<br/>value = [584, 0, 0]<br/>class = y<SUB>0</SUB>>, fillcolor="#e58139"] ;
+0 -> 6 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
 }

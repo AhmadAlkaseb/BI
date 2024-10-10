@@ -243,11 +243,11 @@ if file is not None:
 
         coefficient = model.coef_[0]
         intercept = model.intercept_
-        formula = f"y = {intercept:.4f} + {coefficient:.4f}x"
+        formula = f"y = {intercept:.2f} + {coefficient:.2f}x"
 
         st.latex(formula)
 
-        col1, col2 = st.columns([2, 1])  # Adjust the ratio as needed
+        col1, col2 = st.columns([2, 1])
 
         with col1:
             plt1 = plt.figure(figsize=(10, 6))
@@ -307,21 +307,25 @@ if file is not None:
 
         model.fit(pd.get_dummies(X_train), y_train)
 
-        feature_names = pd.get_dummies(X).columns
-        equation = ' + '.join(f'({coef:0.2f} x {name})' for coef, name in zip(model.coef_, feature_names))
-
         y_predictions = model.predict(pd.get_dummies(X_test))
 
         feature_names = X.columns
         coefficients = model.coef_
         intercept = model.intercept_
+
+        name_mapping = {
+            '# Injured': 'I',
+            'State': 'S'
+        }
+
         formula = f"y = {intercept:.4f}"
         for name, coef in zip(feature_names, coefficients):
-            formula += f" + {coef:.4f} * {name}"
+            short_name = name_mapping.get(name, name)  # If name not in dict, use original name
+            formula += f" + ({coef:.4f}{short_name})"
 
         st.latex(formula)
 
-        col1, col2 = st.columns([2, 1])  # Adjust the ratio as needed
+        col1, col2 = st.columns([2, 1])
 
         with col1:
             plt2 = plt.figure(figsize=(10, 6))
@@ -383,10 +387,10 @@ if file is not None:
 
         coefficients = pol_reg.coef_
         intercept = pol_reg.intercept_
-        formula = f"y = {intercept:.4f}"
-        for i, coef in enumerate(coefficients[1:], 1):  # Skip the first coefficient (it's always 1)
+        formula = f"y = {intercept:.2f}"
+        for i, coef in enumerate(coefficients[1:], 1):
             if coef != 0:
-                formula += f" + {coef:.4f}x^{i}"
+                formula += f" + {coef:.2f}x^{i}"
         st.latex(formula)
 
         y_predict = pol_reg.predict(X_test_poly)
@@ -529,6 +533,8 @@ if file is not None:
 
     create_download_button(kmeans, "cluster_model")
 
+    st.divider()
+
     def plot_confusion_matrix(cm):
         fig, ax = plt.subplots(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
@@ -588,8 +594,8 @@ if file is not None:
     def plot_confusion_matrix(cm):
         plt.figure(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False,
-                    xticklabels=['Cluster 0', 'Cluster 1', 'Cluster 2'],  # Adjust based on your labels
-                    yticklabels=['Cluster 0', 'Cluster 1', 'Cluster 2'])  # Adjust based on your labels
+                    xticklabels=['Cluster 0', 'Cluster 1', 'Cluster 2'],
+                    yticklabels=['Cluster 0', 'Cluster 1', 'Cluster 2'])
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
         plt.title('Confusion Matrix')
@@ -598,12 +604,12 @@ if file is not None:
 
     def naive_bayes_classification():
         array = df.values
-        X = array[:, 0:4]
-        Y = array[:, 5]
+        X = array[:, 0:5]
+        y = array[:, 5]
 
         test_set_size = 0.2
         seed = 7
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=test_set_size, random_state=seed)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=test_set_size, random_state=seed)
 
         modell = GaussianNB()
         modell.fit(X_train, Y_train)
@@ -632,12 +638,12 @@ if file is not None:
         year = st.number_input("Year", min_value=2000, max_value=2030, value=2000)
         weapon_law_score = st.number_input("Weapon Law Strictness Score", min_value=0.0, max_value=100.0, value=0.0)
 
-        user_input_df = pd.DataFrame([[state, killed, injured, year]],  # Note that we only need the features
-                                     columns=['State', '# Killed', '# Injured', 'year'])
+        user_input_df = pd.DataFrame([[state, killed, injured, year, weapon_law_score ]],
+                                     columns=['State', '# Killed', '# Injured', 'year', 'Weapon Law Strictness Score'])
 
         my_prediction = modell.predict(user_input_df)[0]
 
-        st.markdown(f"🎉 Your input has been classified into **Cluster {my_prediction}**")
+        st.markdown(f"🎉 Your input has been classified into **Cluster {my_prediction:.0f}**")
 
         create_download_button(modell, "naive_bayes_model")
 
