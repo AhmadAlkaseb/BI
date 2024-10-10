@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import joblib
-import graphviz
 import streamlit as st
 import io
 from sklearn import metrics, tree, model_selection
@@ -14,12 +13,11 @@ from scipy.stats import pearsonr
 from sklearn.utils import shuffle
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, LabelEncoder, StandardScaler, PolynomialFeatures
+from sklearn.preprocessing import LabelEncoder, StandardScaler, PolynomialFeatures
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.cluster import KMeans 
-from sklearn.metrics import silhouette_score
 from yellowbrick.cluster import SilhouetteVisualizer
 from scipy.spatial.distance import cdist
 
@@ -158,6 +156,9 @@ if file is not None:
             plt.title('Weapon Law Strictness by State')
             ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
 
+        elif plot_name == "Histograms":
+            df.hist(ax=ax)
+
         return fig
 
     plot_options = [
@@ -171,6 +172,7 @@ if file is not None:
         "Correlation: Injured vs Killed by State",
         "Weapon law score by state",
         "Descriptive statistics",
+        "Histograms",
     ]
 
     st.markdown("#### Choose diagrams to see")
@@ -590,7 +592,6 @@ if file is not None:
 
         create_download_button(classifier, "decision_tree_model")
 
-
     def plot_confusion_matrix(cm):
         plt.figure(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False,
@@ -600,7 +601,6 @@ if file is not None:
         plt.xlabel('Predicted Label')
         plt.title('Confusion Matrix')
         return plt.gcf()
-
 
     def naive_bayes_classification():
         array = df.values
