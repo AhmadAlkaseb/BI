@@ -21,7 +21,7 @@
 ### 2. **decision_tree**  
    *Contains our decision tree.* 
 
-### 3. **Model**  
+### 3. **model**  
    *Contains our exported model.*
 
 
